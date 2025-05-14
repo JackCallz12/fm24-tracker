@@ -5,3 +5,76 @@ git commit -m "Initial commit"
 git remote add origin https://github.com/YOUR_USERNAME/fm24-tracker.git
 git branch -M main
 git push -u origin main
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+const initialManagers = [
+  { name: "Alice", team: "Manchester United", points: 0 },
+  { name: "Bob", team: "Barcelona", points: 0 },
+];
+
+export default function FM24Tracker() {
+  const [managers, setManagers] = useState(initialManagers);
+  const [newManager, setNewManager] = useState({ name: "", team: "" });
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const handleAddManager = () => {
+    if (newManager.name && newManager.team) {
+      setManagers([...managers, { ...newManager, points: 0 }]);
+      setNewManager({ name: "", team: "" });
+    }
+  };
+
+  const updatePoints = (index, delta) => {
+    const updated = [...managers];
+    updated[index].points += delta;
+    setManagers(updated);
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      <h1 className="text-3xl font-bold">FM24 Multiplayer Tracker</h1>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="add">Add Manager</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {managers.map((manager, index) => (
+              <Card key={index} className="shadow-md">
+                <CardContent className="p-4 space-y-2">
+                  <h2 className="text-xl font-semibold">{manager.name}</h2>
+                  <p className="text-gray-600">Team: {manager.team}</p>
+                  <p className="text-gray-800 font-bold">Points: {manager.points}</p>
+                  <div className="flex space-x-2">
+                    <Button onClick={() => updatePoints(index, 1)}>+1</Button>
+                    <Button onClick={() => updatePoints(index, -1)}>-1</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        <TabsContent value="add">
+          <div className="mt-4 space-y-4">
+            <Input
+              placeholder="Manager Name"
+              value={newManager.name}
+              onChange={(e) => setNewManager({ ...newManager, name: e.target.value })}
+            />
+            <Input
+              placeholder="Team"
+              value={newManager.team}
+              onChange={(e) => setNewManager({ ...newManager, team: e.target.value })}
+            />
+            <Button onClick={handleAddManager}>Add Manager</Button>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
